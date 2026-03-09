@@ -5,13 +5,7 @@
     keymap {
         compatible = "zmk,keymap";
         default_layer {
-            bindings = <
-                &kp N7 &kp N8 &kp N9 &kp DIVIDE
-                &kp N4 &kp N5 &kp N6 &kp MULTIPLY
-                &kp N1 &kp N2 &kp N3 &kp MINUS
-                &kp N0 &kp DOT &kp ENTER &kp PLUS
-                &kp ESC &kp TAB &kp BSPC &kp LCTRL
-            >;
+            bindings = <&kp N7 &kp N8 &kp N9 &kp DIVIDE &kp N4 &kp N5 &kp N6 &kp MULTIPLY &kp N1 &kp N2 &kp N3 &kp MINUS &kp N0 &kp DOT &kp ENTER &kp PLUS &kp ESC &kp TAB &kp BSPC &kp LCTRL>;
         };
     };
 };
