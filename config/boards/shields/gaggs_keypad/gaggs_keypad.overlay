@@ -4,6 +4,16 @@
     chosen {
         zmk,kscan = &kscan0;
         zmk,matrix_transform = &default_transform;
+        // 1. ZMK Studio가 사용할 물리 레이아웃을 지정합니다.
+        zmk,physical-layout = &physical_layout0;
+    };
+
+    // 2. 물리적 레이아웃 정의 (이 노드가 없어서 에러가 난 것입니다)
+    physical_layout0: physical_layout_0 {
+        compatible = "zmk,physical-layout";
+        display-name = "Default Layout";
+        transform = <&default_transform>;
+        kscan = <&kscan0>;
     };
 
     default_transform: keymap_transform_0 {
@@ -22,8 +32,8 @@
     kscan0: kscan {
         compatible = "zmk,kscan-gpio-matrix";
         label = "KSCAN";
-        diode-direction = "col2row";
         status = "okay";
+        diode-direction = "col2row";
 
         col-gpios
             = <&gpio0 6  GPIO_ACTIVE_HIGH>
@@ -38,23 +48,4 @@
             , <&gpio0 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
             , <&gpio1 4  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
     };
-};
-
-&uart0 {
-    status = "disabled";
-};
-&i2c0 {
-    status = "disabled";
-};
-
-&i2c1 {
-    status = "disabled";
-};
-
-&spi1 {
-    status = "disabled";
-};
-
-&spi3 {
-    status = "disabled";
 };
