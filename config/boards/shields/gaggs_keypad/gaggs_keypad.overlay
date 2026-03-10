@@ -4,11 +4,11 @@
     chosen {
         zmk,kscan = &kscan0;
         zmk,matrix_transform = &default_transform;
-        // 1. ZMK Studio가 사용할 물리 레이아웃을 지정합니다.
+        // 1. ZMK Studio를 위한 물리적 레이아웃 연결
         zmk,physical-layout = &physical_layout0;
     };
 
-    // 2. 물리적 레이아웃 정의 (이 노드가 없어서 에러가 난 것입니다)
+    // 2. 물리적 레이아웃 노드 추가 (에러 해결 핵심)
     physical_layout0: physical_layout_0 {
         compatible = "zmk,physical-layout";
         display-name = "Default Layout";
@@ -49,3 +49,10 @@
             , <&gpio1 4  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
     };
 };
+
+// 나머지 주변기기 비활성화 (전원 절약)
+&uart0 { status = "disabled"; };
+&i2c0 { status = "disabled"; };
+&i2c1 { status = "disabled"; };
+&spi1 { status = "disabled"; };
+&spi3 { status = "disabled"; };
