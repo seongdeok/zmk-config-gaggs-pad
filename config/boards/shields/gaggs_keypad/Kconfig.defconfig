@@ -1,4 +1,4 @@
-if SHIELD_MY_KEYPAD
+if SHIELD_GAGGS_KEYPAD
 config ZMK_KEYBOARD_NAME
     default "GaggsKeypad"
 endif
