@@ -1,7 +1,9 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
-
+&kscan0 {
+    wakeup-source;
+};
 / {
     keymap {
         compatible = "zmk,keymap";
