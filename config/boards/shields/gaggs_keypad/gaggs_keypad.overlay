@@ -1,8 +1,6 @@
 #include <dt-bindings/zmk/matrix_transform.h>
 #include <physical_layouts.dtsi>  // 1. 키의 물리적 위치 속성을 사용하기 위한 헤더 추가
-&kscan0 {
-    wakeup-source;
-};
+
 / {
     chosen {
         zmk,kscan = &kscan0;
