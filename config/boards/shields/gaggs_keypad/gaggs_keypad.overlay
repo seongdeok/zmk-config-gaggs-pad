@@ -63,10 +63,10 @@
         wakeup-source;
 
         col-gpios
-            = <&gpio1 6  (GPIO_ACTIVE_LOW| PIO_PULL_UP)>
-            , <&gpio0 9 (GPIO_ACTIVE_LOW| PIO_PULL_UP)>
-            , <&gpio0 17 (GPIO_ACTIVE_LOW| PIO_PULL_UP)>
-            , <&gpio0 20  (GPIO_ACTIVE_LOW| PIO_PULL_UP)>;
+            = <&gpio1 6  (GPIO_ACTIVE_LOW | PIO_PULL_UP)>
+            , <&gpio0 9 (GPIO_ACTIVE_LOW | PIO_PULL_UP)>
+            , <&gpio0 17 (GPIO_ACTIVE_LOW | PIO_PULL_UP)>
+            , <&gpio0 20  (GPIO_ACTIVE_LOW | PIO_PULL_UP)>;
 
 
         row-gpios
