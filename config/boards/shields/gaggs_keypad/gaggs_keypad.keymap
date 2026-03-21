@@ -18,7 +18,7 @@
             sensor-bindings = <
                 &inc_dec_kp C_VOL_UP C_VOL_DN  // Encoder 1: 볼륨
                 &inc_dec_kp PG_UP PG_DN        // Encoder 2: 페이지 업/다운
-                &inc_dec_kp BRIGHTNESS_UP BRIGHTNESS_DOWN // Encoder 3: 밝기
+                &inc_dec_kp C_BRI_UP	C_BRI_DN// Encoder 3: 밝기
             >;
         };
     };
