@@ -1,5 +1,5 @@
 #include <dt-bindings/zmk/matrix_transform.h>
-#include <physical_layouts.dtsi>  // 1. 키의 물리적 위치 속성을 사용하기 위한 헤더 추가
+#include <dt-bindings/pinctrl/nrf-pinctrl.h>
 
 / {
     chosen {
@@ -7,11 +7,11 @@
         zmk,display = &oled;
     };
 
-    // [A] 3x4 키패드 매트릭스 설정
+    // [A] 3x4 키패드 매트릭스 설정 (사용자 입력 기반)
     kscan0: kscan {
         compatible = "zmk,kscan-gpio-matrix";
         label = "KSCAN";
-        diode-direction = "col2row"; // 사실(Fact): 일반적인 다이오드 방향
+        diode-direction = "col2row"; 
 
         row-gpios
             = <&gpio0 17 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)> // Row 1 (사실)
@@ -21,46 +21,45 @@
 
         col-gpios
             = <&gpio0 24 GPIO_ACTIVE_HIGH> // Col 1 (사실)
-            , <&gpio1  0 GPIO_ACTIVE_HIGH> // Col 2 (사실)
+            , <&gpio1  0 GPIO_ACTIVE_HIGH> // Col 2 (사실: P1.00)
             , <&gpio0 11 GPIO_ACTIVE_HIGH> // Col 3 (사실)
-            , <&gpio1  4 GPIO_ACTIVE_HIGH> // Col 4 (사실)
+            , <&gpio1  4 GPIO_ACTIVE_HIGH> // Col 4 (사실: P1.04)
             ;
     };
 
     // [B] 인코더 스위치 (SW) - 다이렉트 핀 설정
-    // 매트릭스 외 별도 핀으로 연결되었으므로 direct-gpio를 사용합니다. (추론)
     encoder_sw: kscan_sw {
         compatible = "zmk,kscan-gpio-direct";
         label = "ENCODER_SW";
         input-gpios
-            = <&gpio0  2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)> // Knob 1 SW (사실)
-            , <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)> // Knob 2 SW (사실)
-            , <&gpio1  1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)> // Knob 3 SW (사실)
+            = <&gpio0  2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  // Knob 1 SW (사실)
+            , <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  // Knob 2 SW (사실: P1.15)
+            , <&gpio1  1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  // Knob 3 SW (사실: P1.01)
             ;
     };
 
-    // [C] 로터리 인코더 회전 설정
+    // [C] 로터리 인코더 설정
     left_encoder: encoder_left {
         compatible = "alps,ec11";
         label = "LEFT_ENCODER";
-        a-gpios = <&gpio0 29 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // CLK (사실)
-        b-gpios = <&gpio0 31 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // DT (사실)
-        steps = <80>; // 추론: EC11 표준 분해능
+        a-gpios = <&gpio0 29 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // CLK (사실: 029)
+        b-gpios = <&gpio0 31 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // DT (사실: 031)
+        steps = <80>;
     };
 
     mid_encoder: encoder_mid {
         compatible = "alps,ec11";
         label = "MID_ENCODER";
-        a-gpios = <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // CLK (사실)
-        b-gpios = <&gpio1 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // DT (사실)
+        a-gpios = <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // CLK (사실: 111)
+        b-gpios = <&gpio1 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // DT (사실: 113)
         steps = <80>;
     };
 
     right_encoder: encoder_right {
         compatible = "alps,ec11";
         label = "RIGHT_ENCODER";
-        a-gpios = <&gpio1  7 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // CLK (사실)
-        b-gpios = <&gpio1  2 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // DT (사실)
+        a-gpios = <&gpio1  7 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // CLK (사실: 107)
+        b-gpios = <&gpio1  2 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // DT (사실: 102)
         steps = <80>;
     };
 
@@ -70,24 +69,29 @@
     };
 };
 
-// [D] OLED 디스플레이 (I2C)
-&i2c0 {
-    status = "okay";
-    sda-pin = <6>; // P0.06 (사실)
-    scl-pin = <8>; // P0.08 (사실)
+// [D] Pinctrl 설정 (Zephyr 4.1.0 필수 해결책)
+&pinctrl {
+    i2c0_default: i2c0_default {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 0, 6)>,  // P0.06 (사실)
+                    <NRF_PSEL(TWIM_SCL, 0, 8)>;  // P0.08 (사실)
+        };
+    };
 
-    oled: ssd1306@3c {
-        compatible = "solomon,ssd1306fb";
-        reg = <0x3c>;
-        label = "DISPLAY";
-        width = <128>;
-        height = <32>; // 추론: 일반적인 0.91인치 OLED
-        segment-remap;
-        page-offset = <0>;
-        display-offset = <0>;
-        multiplex-ratio = <31>;
-        segment-no-remap;
-        prechargep = <0x22>;
+    i2c0_sleep: i2c0_sleep {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 0, 6)>,
+                    <NRF_PSEL(TWIM_SCL, 0, 8)>;
+            low-power-enable;
+        };
     };
 };
 
+// [E] I2C/OLED 노드 활성화
+&i2c0 {
+    status = "okay";
+    pinctrl-0 = <&i2c0_default>;
+    pinctrl-1 = <&i2c0_sleep>;
+    pinctrl-names = "default", "sleep";
+
+    oled: ssd13
