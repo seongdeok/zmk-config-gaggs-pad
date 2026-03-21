@@ -4,14 +4,15 @@
 / {
     chosen {
         zmk,kscan = &kscan_composite;
-        zephyr,display = &oled; // 사실(Fact): zmk,display가 아니라 zephyr,display여야 함
+        zmk,display = &oled;    // ZMK 위젯용 (사실)
+        zephyr,display = &oled; // Zephyr 드라이버용 (사실)
     };
 
-    // [1] 3x4 키패드 매트릭스
+    // [1] 3x4 매트릭스 (사용자 요청 핀: 20,22,24 / 100,011,104,106)
     kscan0: kscan_matrix {
         compatible = "zmk,kscan-gpio-matrix";
         label = "KSCAN_MATRIX";
-        diode-direction = "col2row"; 
+        diode-direction = "col2row"; // 사실: 띠가 Row(GPIO) 방향
 
         row-gpios
             = <&gpio0 20 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
@@ -20,14 +21,14 @@
             ;
 
         col-gpios
-            = <&gpio1  0 GPIO_ACTIVE_HIGH>
-            , <&gpio0 11 GPIO_ACTIVE_HIGH> // P1.00
-            , <&gpio1  4 GPIO_ACTIVE_HIGH>
-            , <&gpio1  6 GPIO_ACTIVE_HIGH> // P1.04
+            = <&gpio1  0 GPIO_ACTIVE_HIGH> // 100 (P1.00)
+            , <&gpio0 11 GPIO_ACTIVE_HIGH> // 011 (P0.11)
+            , <&gpio1  4 GPIO_ACTIVE_HIGH> // 104 (P1.04)
+            , <&gpio1  6 GPIO_ACTIVE_HIGH> // 106 (P1.06)
             ;
     };
 
-    // [2] 인코더 스위치 (SW)
+    // [2] 인코더 스위치 (사실: 기존 핀 유지)
     encoder_sw: kscan_sw {
         compatible = "zmk,kscan-gpio-direct";
         label = "ENCODER_SW";
@@ -38,82 +39,33 @@
             ;
     };
 
-    // [3] 매트릭스와 스위치를 합친 4x4 가상 매트릭스
     kscan_composite: kscan_composite {
         compatible = "zmk,kscan-composite";
         label = "KSCAN";
-        rows = <4>;
-        columns = <4>;
+        rows = <4>; columns = <4>;
         matrix { kscan = <&kscan0>; };
         direct { kscan = <&encoder_sw>; row-offset = <3>; };
     };
 
-    // [4] 로터리 인코더 회전 배선
-    left_encoder: encoder_left {
-        compatible = "alps,ec11";
-        label = "LEFT_ENCODER";
-        a-gpios = <&gpio0 29 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        b-gpios = <&gpio0 31 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        steps = <80>;
-    };
+    // 인코더 회전 배선 (사실: 기존 핀 유지)
+    left_encoder:  encoder_left  { compatible = "alps,ec11"; label = "L_ENC"; a-gpios = <&gpio0 29 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; b-gpios = <&gpio0 31 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; steps = <80>; };
+    mid_encoder:   encoder_mid   { compatible = "alps,ec11"; label = "M_ENC"; a-gpios = <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; b-gpios = <&gpio1 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; steps = <80>; };
+    right_encoder: encoder_right { compatible = "alps,ec11"; label = "R_ENC"; a-gpios = <&gpio1  7 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; b-gpios = <&gpio1  2 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; steps = <80>; };
 
-    mid_encoder: encoder_mid {
-        compatible = "alps,ec11";
-        label = "MID_ENCODER";
-        a-gpios = <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        b-gpios = <&gpio1 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        steps = <80>;
-    };
-
-    right_encoder: encoder_right {
-        compatible = "alps,ec11";
-        label = "RIGHT_ENCODER";
-        a-gpios = <&gpio1  7 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        b-gpios = <&gpio1  2 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        steps = <80>;
-    };
-
-    sensors {
-        compatible = "zmk,keymap-sensors";
-        sensors = <&left_encoder &mid_encoder &right_encoder>;
-    };
+    sensors { compatible = "zmk,keymap-sensors"; sensors = <&left_encoder &mid_encoder &right_encoder>; };
 };
 
-// [5] Pinctrl 설정
 &pinctrl {
-    i2c0_default: i2c0_default {
-        group1 {
-            psels = <NRF_PSEL(TWIM_SDA, 0, 6)>, <NRF_PSEL(TWIM_SCL, 0, 8)>;
-        };
-    };
-    i2c0_sleep: i2c0_sleep {
-        group1 {
-            psels = <NRF_PSEL(TWIM_SDA, 0, 6)>, <NRF_PSEL(TWIM_SCL, 0, 8)>;
-            low-power-enable;
-        };
-    };
+    i2c0_default: i2c0_default { group1 { psels = <NRF_PSEL(TWIM_SDA, 0, 6)>, <NRF_PSEL(TWIM_SCL, 0, 8)>; }; };
+    i2c0_sleep: i2c0_sleep { group1 { psels = <NRF_PSEL(TWIM_SDA, 0, 6)>, <NRF_PSEL(TWIM_SCL, 0, 8)>; low-power-enable; }; };
 };
 
-// [6] OLED 상세 설정
 &i2c0 {
     status = "okay";
-    pinctrl-0 = <&i2c0_default>;
-    pinctrl-1 = <&i2c0_sleep>;
-    pinctrl-names = "default", "sleep";
-
+    pinctrl-0 = <&i2c0_default>; pinctrl-1 = <&i2c0_sleep>; pinctrl-names = "default", "sleep";
     oled: ssd1306@3c {
-        compatible = "solomon,ssd1306fb";
-        reg = <0x3c>;
-        label = "DISPLAY";
-        width = <128>;
-        height = <32>;
-        segment-offset = <0>;
-        page-offset = <0>;
-        display-offset = <0>;
-        multiplex-ratio = <31>;
-        segment-remap;
-        com-invdir;
-        com-sequential;
-        prechargep = <0x22>;
+        compatible = "solomon,ssd1306fb"; reg = <0x3c>; label = "DISPLAY";
+        width = <128>; height = <32>; segment-offset = <0>; page-offset = <0>; display-offset = <0>;
+        multiplex-ratio = <31>; segment-remap; com-invdir; com-sequential; prechargep = <0x22>;
     };
 };
