@@ -4,41 +4,41 @@
 / {
     chosen {
         zmk,kscan = &kscan_composite;
-        zmk,display = &oled;
+        zephyr,display = &oled; // 사실(Fact): zmk,display가 아니라 zephyr,display여야 함
     };
 
-    // [1] 3x4 키패드 매트릭스 (사용자 배선 기반)
+    // [1] 3x4 키패드 매트릭스
     kscan0: kscan_matrix {
         compatible = "zmk,kscan-gpio-matrix";
         label = "KSCAN_MATRIX";
         diode-direction = "col2row"; 
 
         row-gpios
-            = <&gpio0 17 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)> // Row 1 (017)
-            , <&gpio0 20 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)> // Row 2 (020)
-            , <&gpio0 22 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)> // Row 3 (022)
+            = <&gpio0 17 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+            , <&gpio0 20 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+            , <&gpio0 22 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
             ;
 
         col-gpios
-            = <&gpio0 24 GPIO_ACTIVE_HIGH> // Col 1 (024)
-            , <&gpio1  0 GPIO_ACTIVE_HIGH> // Col 2 (100)
-            , <&gpio0 11 GPIO_ACTIVE_HIGH> // Col 3 (011)
-            , <&gpio1  4 GPIO_ACTIVE_HIGH> // Col 4 (104)
+            = <&gpio0 24 GPIO_ACTIVE_HIGH>
+            , <&gpio1  0 GPIO_ACTIVE_HIGH> // P1.00
+            , <&gpio0 11 GPIO_ACTIVE_HIGH>
+            , <&gpio1  4 GPIO_ACTIVE_HIGH> // P1.04
             ;
     };
 
-    // [2] 인코더 푸시 스위치 3개 (사용자 배선 기반)
+    // [2] 인코더 스위치 (SW)
     encoder_sw: kscan_sw {
         compatible = "zmk,kscan-gpio-direct";
         label = "ENCODER_SW";
         input-gpios
-            = <&gpio0  2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  // Knob 1 (002)
-            , <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  // Knob 2 (115)
-            , <&gpio1  1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>  // Knob 3 (101)
+            = <&gpio0  2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
+            , <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
+            , <&gpio1  1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
             ;
     };
 
-    // [3] 입력 장치 결합
+    // [3] 매트릭스와 스위치를 합친 4x4 가상 매트릭스
     kscan_composite: kscan_composite {
         compatible = "zmk,kscan-composite";
         label = "KSCAN";
@@ -48,28 +48,28 @@
         direct { kscan = <&encoder_sw>; row-offset = <3>; };
     };
 
-    // [4] 로터리 인코더 회전 배선 (사용자 배선 기반)
+    // [4] 로터리 인코더 회전 배선
     left_encoder: encoder_left {
         compatible = "alps,ec11";
         label = "LEFT_ENCODER";
-        a-gpios = <&gpio0 29 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // CLK (029)
-        b-gpios = <&gpio0 31 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // DT (031)
+        a-gpios = <&gpio0 29 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+        b-gpios = <&gpio0 31 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
         steps = <80>;
     };
 
     mid_encoder: encoder_mid {
         compatible = "alps,ec11";
         label = "MID_ENCODER";
-        a-gpios = <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // CLK (111)
-        b-gpios = <&gpio1 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // DT (113)
+        a-gpios = <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+        b-gpios = <&gpio1 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
         steps = <80>;
     };
 
     right_encoder: encoder_right {
         compatible = "alps,ec11";
         label = "RIGHT_ENCODER";
-        a-gpios = <&gpio1  7 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // CLK (107)
-        b-gpios = <&gpio1  2 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; // DT (102)
+        a-gpios = <&gpio1  7 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+        b-gpios = <&gpio1  2 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
         steps = <80>;
     };
 
@@ -79,7 +79,7 @@
     };
 };
 
-// [5] Pinctrl 설정 (OLED 핀 정의)
+// [5] Pinctrl 설정
 &pinctrl {
     i2c0_default: i2c0_default {
         group1 {
@@ -94,7 +94,7 @@
     };
 };
 
-// [6] I2C 및 OLED 세부 설정 (에러 수정 지점)
+// [6] OLED 상세 설정
 &i2c0 {
     status = "okay";
     pinctrl-0 = <&i2c0_default>;
@@ -107,7 +107,6 @@
         label = "DISPLAY";
         width = <128>;
         height = <32>;
-        // 사실(Fact): 아래 3개 속성은 최신 Zephyr에서 필수입니다.
         segment-offset = <0>;
         page-offset = <0>;
         display-offset = <0>;
