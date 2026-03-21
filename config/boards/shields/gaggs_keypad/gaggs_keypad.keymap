@@ -1,24 +1,23 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
-#include <dt-bindings/zmk/bt.h>
+
 / {
     keymap {
         compatible = "zmk,keymap";
 
         default_layer {
-            // 3x4 매트릭스 + 3개 인코더 스위치 순서대로 나열
+            // 3x4 매트릭스(12개) + 인코더 스위치(3개) = 총 15개 바인딩
             bindings = <
                 &kp KP_N7 &kp KP_N8 &kp KP_N9 &kp KP_MINUS
                 &kp KP_N4 &kp KP_N5 &kp KP_N6 &kp KP_PLUS
                 &kp KP_N1 &kp KP_N2 &kp KP_N3 &kp KP_ENTER
-                &kp C_MUTE &kp C_PP &kp C_NEXT // 인코더 스위치 기능 (추론)
+                &kp C_MUTE &kp C_PP &kp C_NEXT 
             >;
 
-            // 인코더 회전 시 동작 (Volume, Scroll, Brightness 등)
             sensor-bindings = <
-                &inc_dec_kp C_VOL_UP C_VOL_DN  // Encoder 1: 볼륨
-                &inc_dec_kp PG_UP PG_DN        // Encoder 2: 페이지 업/다운
-                &inc_dec_kp C_BRI_UP	C_BRI_DN// Encoder 3: 밝기
+                &inc_dec_kp C_VOL_UP C_VOL_DN
+                &inc_dec_kp PG_UP PG_DN
+                &inc_dec_kp C_BRI_UP C_BRI_DN
             >;
         };
     };
