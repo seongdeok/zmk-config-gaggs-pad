@@ -87,3 +87,7 @@
         prechargep = <0x22>;
     };
 };
+
+&uart0 {
+    status = "disabled";
+};
