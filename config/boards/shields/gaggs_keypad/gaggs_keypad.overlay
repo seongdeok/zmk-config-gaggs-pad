@@ -66,8 +66,6 @@
     pinctrl-1 = <&i2c0_sleep>;
     pinctrl-names = "default", "sleep";
     
-    // 사실(Fact): 속도를 100kHz로 낮추는 것이 깨짐 해결의 핵심입니다.
-    clock-frequency = <100000>; 
 
     oled: ssd1306@3c {
         compatible = "solomon,ssd1306fb";
