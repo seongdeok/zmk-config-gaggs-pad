@@ -56,14 +56,14 @@
 };
 
 &pinctrl {
-    i2c1_default: i2c1_default { group1 { psels = <NRF_PSEL(TWIM_SDA, 0, 6)>, <NRF_PSEL(TWIM_SCL, 0, 8)>; }; };
-    i2c1_sleep: i2c1_sleep { group1 { psels = <NRF_PSEL(TWIM_SDA, 0, 6)>, <NRF_PSEL(TWIM_SCL, 0, 8)>; low-power-enable; }; };
+    i2c0_default: i2c0_default { group1 { psels = <NRF_PSEL(TWIM_SDA, 0, 6)>, <NRF_PSEL(TWIM_SCL, 0, 8)>; }; };
+    i2c0_sleep: i2c0_sleep { group1 { psels = <NRF_PSEL(TWIM_SDA, 0, 6)>, <NRF_PSEL(TWIM_SCL, 0, 8)>; low-power-enable; }; };
 };
 
-&i2c1 {
+&i2c0 {
     status = "okay";
-    pinctrl-0 = <&i2c1_default>;
-    pinctrl-1 = <&i2c1_sleep>;
+    pinctrl-0 = <&i2c0_default>;
+    pinctrl-1 = <&i2c0_sleep>;
     pinctrl-names = "default", "sleep";
     
     // 사실(Fact): 속도를 100kHz로 낮추는 것이 깨짐 해결의 핵심입니다.
