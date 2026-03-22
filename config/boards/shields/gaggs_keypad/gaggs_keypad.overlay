@@ -74,13 +74,13 @@
         reg = <0x3c>;
         label = "DISPLAY";
         width = <128>;
-        height = <32>; // 0.91인치 기준. 0.96인치라면 64로 수정
+        height = <64>; // 0.91인치 기준. 0.96인치라면 64로 수정
         
         // 추론(Inference): 아래 값들이 하나라도 틀리면 화면이 깨집니다.
         segment-offset = <0>;
         page-offset = <0>;
         display-offset = <0>;
-        multiplex-ratio = <31>; // height - 1 값이어야 함
+        multiplex-ratio = <63>; // height - 1 값이어야 함
         segment-remap;
         com-invdir;
         com-sequential;
