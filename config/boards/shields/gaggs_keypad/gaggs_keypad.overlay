@@ -62,10 +62,28 @@
 
 &i2c0 {
     status = "okay";
-    pinctrl-0 = <&i2c0_default>; pinctrl-1 = <&i2c0_sleep>; pinctrl-names = "default", "sleep";
+    pinctrl-0 = <&i2c0_default>;
+    pinctrl-1 = <&i2c0_sleep>;
+    pinctrl-names = "default", "sleep";
+    
+    // 사실(Fact): 속도를 100kHz로 낮추는 것이 깨짐 해결의 핵심입니다.
+    clock-frequency = <100000>; 
+
     oled: ssd1306@3c {
-        compatible = "solomon,ssd1306fb"; reg = <0x3c>; label = "DISPLAY";
-        width = <128>; height = <32>; segment-offset = <0>; page-offset = <0>; display-offset = <0>;
-        multiplex-ratio = <31>; segment-remap; com-invdir; com-sequential; prechargep = <0x22>;
+        compatible = "solomon,ssd1306fb";
+        reg = <0x3c>;
+        label = "DISPLAY";
+        width = <128>;
+        height = <32>; // 0.91인치 기준. 0.96인치라면 64로 수정
+        
+        // 추론(Inference): 아래 값들이 하나라도 틀리면 화면이 깨집니다.
+        segment-offset = <0>;
+        page-offset = <0>;
+        display-offset = <0>;
+        multiplex-ratio = <31>; // height - 1 값이어야 함
+        segment-remap;
+        com-invdir;
+        com-sequential;
+        prechargep = <0x22>;
     };
 };
