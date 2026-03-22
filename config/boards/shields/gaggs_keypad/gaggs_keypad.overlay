@@ -62,8 +62,9 @@
 
 &i2c0 {
     status = "okay";
-    scl-pin = <6>;
-    sda-pin = <8>;
+    pinctrl-0 = <&i2c0_default>;
+    pinctrl-1 = <&i2c0_sleep>;
+    pinctrl-names = "default", "sleep";
     
     // 사실(Fact): 속도를 100kHz로 낮추는 것이 깨짐 해결의 핵심입니다.
     clock-frequency = <100000>; 
