@@ -84,7 +84,6 @@
         segment-remap;
         com-invdir;
         com-sequential;
-        ready-time-ms = <100>;
         prechargep = <0x22>;
     };
 };
