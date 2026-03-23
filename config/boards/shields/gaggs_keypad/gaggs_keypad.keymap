@@ -2,25 +2,39 @@
 #include <dt-bindings/zmk/keys.h>
 
 / {
+    /* 새로운 비헤이비어 정의 */
+    behaviors {
+        // 사실(Fact): 5초(5000ms) 이상 눌러야 작동하는 hold-tap 정의
+        td_boot: tap_dance_bootloader {
+            compatible = "zmk,behavior-hold-tap";
+            label = "BOOTLOADER_LONG_PRESS";
+            #binding-cells = <2>;
+            tapping-term-ms = <5000>;     // 정확히 5초 설정
+            flavor = "tap-preferred";     // 5초 전 떼면 무조건 Tap 키(Mute) 작동
+            bindings = <&bootloader>, <&kp>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
         default_layer {
-            // 사실(Fact): 3x4 매트릭스(12개) + 노브 스위치(3개) 배치
             bindings = <
                 /* --- 3x4 매트릭스 영역 --- */
-                &kp KP_N7    &kp KP_N8    &kp KP_N9    &kp KP_MINUS  // Row 1
-                &kp KP_N4    &kp KP_N5    &kp KP_N6    &kp KP_PLUS   // Row 2
-                &kp KP_N1    &kp KP_N2    &kp KP_N3    &kp KP_ENTER  // Row 3
+                &kp KP_N7    &kp KP_N8    &kp KP_N9    &kp KP_MINUS
+                &kp KP_N4    &kp KP_N5    &kp KP_N6    &kp KP_PLUS
+                &kp KP_N1    &kp KP_N2    &kp KP_N3    &kp KP_ENTER
 
                 /* --- 노브(Encoder) 스위치 영역 --- */
-                &kp C_MUTE   &kp C_PP     &kp C_NEXT   &none         // 노브1, 2, 3 스위치 (남는 칸은 none)
+                // 사실(Fact): 첫 번째 인코더 클릭에 5초 홀드 기능 적용
+                // &td_boot [홀드 시 동작] [탭 시 동작] 순서임
+                &td_boot 0 C_MUTE    &kp C_PP    &kp C_NEXT    &none
             >;
 
             sensor-bindings = <
-                &inc_dec_kp C_VOL_UP C_VOL_DN   // 노브 1 회전
-                &inc_dec_kp PG_UP PG_DN         // 노브 2 회전
-                &inc_dec_kp C_BRI_UP C_BRI_DN   // 노브 3 회전
+                &inc_dec_kp C_VOL_UP C_VOL_DN
+                &inc_dec_kp PG_UP PG_DN
+                &inc_dec_kp C_BRI_UP C_BRI_DN
             >;
         };
     };
