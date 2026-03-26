@@ -1,40 +1,86 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
 
 / {
     /* 새로운 비헤이비어 정의 */
     behaviors {
-        // 사실(Fact): 5초(5000ms) 이상 눌러야 작동하는 hold-tap 정의
+        // 부트로더 진입 (5초 홀드)
         td_boot: tap_dance_bootloader {
             compatible = "zmk,behavior-hold-tap";
             label = "BOOTLOADER_LONG_PRESS";
             #binding-cells = <2>;
-            tapping-term-ms = <5000>;     // 정확히 5초 설정
-            flavor = "tap-preferred";     // 5초 전 떼면 무조건 Tap 키(Mute) 작동
+            tapping-term-ms = <5000>;
+            flavor = "tap-preferred";
             bindings = <&bootloader>, <&kp>;
+        };
+
+        // 레이어 순환 (세 번째 인코더 클릭용)
+        // 탭할 때마다 다음 레이어로 전환
+        nav_layer: layer_cycler {
+            compatible = "zmk,behavior-tap-dance";
+            label = "LAYER_CYCLER";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&to 0>, <&to 1>, <&to 2>;
         };
     };
 
     keymap {
         compatible = "zmk,keymap";
 
+        // 0번: 기본 레이어 (Numpad)
         default_layer {
+            label = "BASE";
             bindings = <
-                /* --- 3x4 매트릭스 영역 --- */
                 &kp KP_N7    &kp KP_N8    &kp KP_N9    &kp KP_MINUS
                 &kp KP_N4    &kp KP_N5    &kp KP_N6    &kp KP_PLUS
                 &kp KP_N1    &kp KP_N2    &kp KP_N3    &kp KP_ENTER
+                
+                /* 노브 영역: 3번째 노브 클릭 시 레이어 변경 */
+                &td_boot 0 C_MUTE    &kp C_PP    &nav_layer    &none
+            >;
 
-                /* --- 노브(Encoder) 스위치 영역 --- */
-                // 사실(Fact): 첫 번째 인코더 클릭에 5초 홀드 기능 적용
-                // &td_boot [홀드 시 동작] [탭 시 동작] 순서임
-                &td_boot 0 C_MUTE    &kp C_PP    &kp C_NEXT    &none
+            sensor-bindings = <
+                &inc_dec_kp C_VOL_UP C_VOL_DN  // 1번: 볼륨
+                &inc_dec_kp PG_UP PG_DN        // 2번: 페이지 업/다운
+                &inc_dec_kp C_FF C_RW          // 3번: 브라이트니스 대신 곡 넘기기로 변경 (추천)
+            >;
+        };
+
+        // 1번: 로워 레이어 (미디어/기타)
+        lower_layer {
+            label = "LOWER";
+            bindings = <
+                &kp ESC      &kp UP       &kp DEL      &kp BSPC
+                &kp LEFT     &kp DOWN     &kp RIGHT    &kp HOME
+                &kp LALT     &kp LCTRL    &kp LSHFT    &kp END
+                
+                &none        &none        &nav_layer   &none
             >;
 
             sensor-bindings = <
                 &inc_dec_kp C_VOL_UP C_VOL_DN
                 &inc_dec_kp PG_UP PG_DN
-                &inc_dec_kp C_BRI_UP C_BRI_DN
+                &inc_dec_kp C_FF C_RW
+            >;
+        };
+
+        // 2번: 레이즈 레이어 (시스템/설정)
+        raise_layer {
+            label = "RAISE";
+            bindings = <
+                &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_CLR
+                &none        &none        &none        &none
+                &none        &none        &none        &none
+                
+                &none        &none        &nav_layer   &none
+            >;
+
+            sensor-bindings = <
+                &inc_dec_kp C_VOL_UP C_VOL_DN
+                &inc_dec_kp PG_UP PG_DN
+                &inc_dec_kp C_FF C_RW
             >;
         };
     };
