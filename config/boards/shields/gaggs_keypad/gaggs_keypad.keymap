@@ -42,7 +42,7 @@
             >;
 
             sensor-bindings = <
-                &inc_dec_kp C_VOL_UP C_VOL_DN  // 1번: 볼륨
+                &inc_dec_kp C_VOL_DN C_VOL_UP  // 1번: 볼륨
                 &inc_dec_kp PG_UP PG_DN        // 2번: 페이지 업/다운
                 &inc_dec_kp C_FF C_RW          // 3번: 브라이트니스 대신 곡 넘기기로 변경 (추천)
             >;
