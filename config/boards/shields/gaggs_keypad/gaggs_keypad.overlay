@@ -59,7 +59,7 @@
         compatible = "zmk,kscan-gpio-matrix";
         label = "KSCAN";
         status = "okay";
-        diode-direction = "row2col";
+        diode-direction = "col2row";
         wakeup-source;
 
         col-gpios
