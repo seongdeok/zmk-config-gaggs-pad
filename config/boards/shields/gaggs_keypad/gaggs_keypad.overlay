@@ -78,15 +78,4 @@
     };
 };
 
-// 나머지 주변기기 비활성화 (전원 절약)
-&uart0 { status = "disabled"; };
-&i2c0 { status = "disabled"; };
-&i2c1 { status = "disabled"; };
-&spi1 { status = "disabled"; };
-&spi2 { status = "disabled"; };
-&spi3 { status = "disabled"; };
-&nfct {
-    status = "disabled";
-};
-&spi0 { status = "disabled"; };
-&qspi { status = "disabled"; };
+
