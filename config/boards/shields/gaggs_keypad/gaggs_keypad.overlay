@@ -32,6 +32,7 @@
     encoder_sw: kscan_sw {
         compatible = "zmk,kscan-gpio-direct";
         label = "ENCODER_SW";
+        wakeup-source;
         input-gpios
             = <&gpio0  2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
             , <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
@@ -42,6 +43,7 @@
     kscan_composite: kscan_composite {
         compatible = "zmk,kscan-composite";
         label = "KSCAN";
+        wakeup-source;
         rows = <4>; columns = <4>;
         matrix { kscan = <&kscan0>; };
         direct { kscan = <&encoder_sw>; row-offset = <3>; };
