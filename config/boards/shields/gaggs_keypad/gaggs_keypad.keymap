@@ -54,11 +54,11 @@
         default_layer {
             label = "Numpad";
             bindings = <
-                /* 물리 1 2 3 4 */
+                /* 물리 1 2 3 4 (1번=BSPC) */
                 &kp BSPC     &kp KP_N7    &kp KP_N8    &kp KP_N9
-                /* 물리 5 6 7 8 */
+                /* 물리 5 6 7 8 (5번=DOT) */
                 &kp KP_DOT   &kp KP_N4    &kp KP_N5    &kp KP_N6
-                /* 물리 9 10 11 12 */
+                /* 물리 9 10 11 12 (9번=0) */
                 &lt 3 KP_N0  &kp KP_N1    &kp KP_N2    &kp KP_N3  
                 
                 /* 노브 클릭 버튼 */
@@ -99,7 +99,7 @@
             label = "FREECAD";
             bindings = <
                 /* 물리 1 2 3 4 */
-                &kp DELETE   &kp LCTRL(Y) &kp LCTRL(Z) &kp ESC
+                &kp DELETE   &kp LC(Y)    &kp LC(Z)    &kp ESC
                 /* 물리 5 6 7 8 */
                 &kp SPACE    &kp LALT     &kp LCTRL    &kp LSHFT
                 /* 물리 9 10 11 12 */
@@ -111,8 +111,8 @@
 
             sensor-bindings = <
                 &inc_dec_kp C_VOL_DN C_VOL_UP  
-                &inc_dec_kp LCTRL(Y) LCTRL(Z)  
-                &inc_dec_kp PG_DN PG_UP      
+                &inc_dec_kp LC(Y) LC(Z)        // LCTRL(Y) -> LC(Y)로 수정하여 에러 해결
+                &inc_dec_kp PG_DN PG_UP        // PG_DOWN -> PG_DN으로 수정
             >;
         };
 
