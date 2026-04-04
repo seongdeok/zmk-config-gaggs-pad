@@ -1,91 +1,139 @@
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/matrix_transform.h>
-#include <dt-bindings/pinctrl/nrf-pinctrl.h>
 
 / {
+    /* [사실] 하드웨어 배선과 코드 위치를 일치시키는 변환 레이어 */
+    default_transform: keymap_transform {
+        compatible = "zmk,matrix-transform";
+        columns = <4>;
+        rows = <4>;
+        // 물리 1번(좌측 상단)이 bindings의 첫 번째 요소가 되도록 매핑
+        map = <
+            RC(2,3) RC(2,2) RC(2,1) RC(2,0) // 물리 1, 2, 3, 4번 키 (상단)
+            RC(1,3) RC(1,2) RC(1,1) RC(1,0) // 물리 5, 6, 7, 8번 키 (중단)
+            RC(0,3) RC(0,2) RC(0,1) RC(0,0) // 물리 9, 10, 11, 12번 키 (하단)
+            RC(3,0) RC(3,1) RC(3,2) RC(3,3) // 인코더 클릭 버튼 (Row 3)
+        >;
+    };
+
     chosen {
-        zmk,kscan = &kscan_composite;
-        zmk,display = &oled;    // ZMK 위젯용 (사실)
-        zephyr,display = &oled; // Zephyr 드라이버용 (사실)
+        zmk,matrix_transform = &default_transform;
     };
 
-    // [1] 3x4 매트릭스 (사용자 요청 핀: 20,22,24 / 100,011,104,106)
-    kscan0: kscan_matrix {
-        compatible = "zmk,kscan-gpio-matrix";
-        label = "KSCAN_MATRIX";
-        diode-direction = "col2row"; // 사실: 띠가 Row(GPIO) 방향
-        wakeup-source;
-        row-gpios
-            = <&gpio0 20 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
-            , <&gpio0 22 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
-            , <&gpio0 24 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
-            ;
+    /* 커스텀 비헤이비어 정의 */
+    behaviors {
+        // 부트로더/음소거 홀드-탭 (5초 홀드 시 부트로더, 짧게 탭하면 음소거)
+        td_boot: tap_dance_bootloader {
+            compatible = "zmk,behavior-hold-tap";
+            label = "BOOTLOADER_LONG_PRESS";
+            #binding-cells = <2>; 
+            tapping-term-ms = <5000>;
+            flavor = "tap-preferred";
+            bindings = <&bootloader>, <&kp>;
+        };
 
-        col-gpios
-            = <&gpio1  0 GPIO_ACTIVE_HIGH> // 100 (P1.00)
-            , <&gpio0 11 GPIO_ACTIVE_HIGH> // 011 (P0.11)
-            , <&gpio1  4 GPIO_ACTIVE_HIGH> // 104 (P1.04)
-            , <&gpio1  6 GPIO_ACTIVE_HIGH> // 106 (P1.06)
-            ;
+        // 상단 좌측 노브 클릭: 길게 누르면 DELETE, 짧게 누르면 ENTER
+        ht_del_ent: hold_tap_del_enter {
+            compatible = "zmk,behavior-hold-tap";
+            label = "DEL_ENTER_HOLD_TAP";
+            #binding-cells = <2>;
+            tapping-term-ms = <200>;
+            flavor = "tap-preferred";
+            bindings = <&kp>, <&kp>;
+        };
     };
 
-    // [2] 인코더 스위치 (사실: 기존 핀 유지)
-    encoder_sw: kscan_sw {
-        compatible = "zmk,kscan-gpio-direct";
-        label = "ENCODER_SW";
-        wakeup-source;
-        input-gpios
-            = <&gpio0  2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
-            , <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
-            , <&gpio1  1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
-            ;
+    keymap {
+        compatible = "zmk,keymap";
+
+        // 0번: Numpad 레이어 (숫자 입력 최적화)
+        default_layer {
+            label = "Numpad";
+            bindings = <
+                /* 물리 1 2 3 4 */
+                &kp BSPC     &kp KP_N7    &kp KP_N8    &kp KP_N9
+                /* 물리 5 6 7 8 */
+                &kp KP_DOT   &kp KP_N4    &kp KP_N5    &kp KP_N6
+                /* 물리 9 10 11 12 */
+                &lt 3 KP_N0  &kp KP_N1    &kp KP_N2    &kp KP_N3  
+                
+                /* 노브 클릭 버튼 */
+                &td_boot 0 C_MUTE    &ht_del_ent DELETE ENTER         &to 1                    &none
+            >;
+
+            sensor-bindings = <
+                &inc_dec_kp C_VOL_DN C_VOL_UP  // 하단 노브
+                &inc_dec_kp PG_UP PG_DN        // 상단 좌측 노브
+                &inc_dec_kp RIGHT LEFT         // 상단 우측 노브
+            >;
+        };
+
+        // 1번: VIDEO 레이어 (정중앙 SPACE 십자 배열)
+        video_layer {
+            label = "VIDEO";
+            bindings = <
+                /* 물리 1 2 3 4 */
+                &kp BSPC     &kp UP       &kp F        &kp ESC
+                /* 물리 5 6 7 8 */
+                &kp LEFT     &kp SPACE    &kp RIGHT    &kp HOME
+                /* 물리 9 10 11 12 */
+                &mo 3        &kp DOWN     &kp END      &kp M     
+                
+                /* 노브 클릭 버튼 */
+                &td_boot 0 C_MUTE    &ht_del_ent DELETE ENTER         &to 2                    &none
+            >;
+
+            sensor-bindings = <
+                &inc_dec_kp C_VOL_DN C_VOL_UP  
+                &inc_dec_kp PG_UP PG_DN        
+                &inc_dec_kp RIGHT LEFT         
+            >;
+        };
+
+        // 2번: FREECAD 레이어 (3D 설계 단축키)
+        cad_layer {
+            label = "FREECAD";
+            bindings = <
+                /* 물리 1 2 3 4 */
+                &kp DELETE   &kp LCTRL(Y) &kp LCTRL(Z) &kp ESC
+                /* 물리 5 6 7 8 */
+                &kp SPACE    &kp LALT     &kp LCTRL    &kp LSHFT
+                /* 물리 9 10 11 12 */
+                &lt 3 KP_N0  &kp KP_N3    &kp KP_N2    &kp KP_N1 
+                
+                /* 노브 클릭 버튼 */
+                &td_boot 0 C_MUTE    &ht_del_ent DELETE ENTER         &to 0                    &none
+            >;
+
+            sensor-bindings = <
+                &inc_dec_kp C_VOL_DN C_VOL_UP  
+                &inc_dec_kp LCTRL(Y) LCTRL(Z)  
+                &inc_dec_kp PG_DN PG_UP      
+            >;
+        };
+
+        // 3번: SYSTEM 레이어 (블루투스 제어)
+        system_layer {
+            label = "SYSTEM";
+            bindings = <
+                /* 물리 1 2 3 4 */
+                &bt BT_CLR   &none        &none        &none
+                /* 물리 5 6 7 8 */
+                &none        &none        &none        &none
+                /* 물리 9 10 11 12 */
+                &trans       &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2     
+                
+                /* 노브 클릭 버튼 */
+                &td_boot 0 C_MUTE    &none                            &none                    &none
+            >;
+
+            sensor-bindings = <
+                &inc_dec_kp C_VOL_DN C_VOL_UP
+                &inc_dec_kp PG_UP PG_DN
+                &inc_dec_kp RIGHT LEFT
+            >;
+        };
     };
-
-    kscan_composite: kscan_composite {
-        compatible = "zmk,kscan-composite";
-        label = "KSCAN";
-        wakeup-source;
-        rows = <4>; columns = <4>;
-        matrix { kscan = <&kscan0>; };
-        direct { kscan = <&encoder_sw>; row-offset = <3>; };
-    };
-
-    // 인코더 회전 배선 (사실: 기존 핀 유지)
-    left_encoder:  encoder_left  { compatible = "alps,ec11"; label = "L_ENC"; a-gpios = <&gpio0 29 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; b-gpios = <&gpio0 31 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; steps = <80>; };
-    mid_encoder:   encoder_mid   { compatible = "alps,ec11"; label = "M_ENC"; a-gpios = <&gpio1 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; b-gpios = <&gpio1 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; steps = <80>; };
-    right_encoder: encoder_right { compatible = "alps,ec11"; label = "R_ENC"; a-gpios = <&gpio1  7 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; b-gpios = <&gpio1  2 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; steps = <80>; };
-
-    sensors { compatible = "zmk,keymap-sensors"; sensors = <&left_encoder &mid_encoder &right_encoder>; };
-};
-
-&pinctrl {
-    i2c0_default: i2c0_default { group1 { psels = <NRF_PSEL(TWIM_SDA, 0, 6)>, <NRF_PSEL(TWIM_SCL, 0, 8)>;bias-pull-up;}; };
-    i2c0_sleep: i2c0_sleep { group1 { psels = <NRF_PSEL(TWIM_SDA, 0, 6)>, <NRF_PSEL(TWIM_SCL, 0, 8)>; low-power-enable; bias-pull-up; }; };
-};
-
-&i2c0 {
-    status = "okay";
-    pinctrl-0 = <&i2c0_default>;
-    pinctrl-1 = <&i2c0_sleep>;
-    pinctrl-names = "default", "sleep";
-    
-
-    oled: ssd1306@3c {
-        compatible = "solomon,ssd1306fb";
-        reg = <0x3c>;
-        label = "DISPLAY";
-        width = <128>;
-        height = <32>; // 0.91인치 기준. 0.96인치라면 64로 수정
-        
-        // 추론(Inference): 아래 값들이 하나라도 틀리면 화면이 깨집니다.
-        segment-offset = <0>;
-        page-offset = <0>;
-        display-offset = <0>;
-        multiplex-ratio = <31>; // height - 1 값이어야 함
-        com-sequential;
-        prechargep = <0x22>;
-    };
-};
-
-&uart0 {
-    status = "disabled";
 };
