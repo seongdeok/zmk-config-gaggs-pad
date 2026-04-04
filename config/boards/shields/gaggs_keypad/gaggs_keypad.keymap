@@ -3,9 +3,9 @@
 #include <dt-bindings/zmk/bt.h>
 
 / {
-    /* 새로운 비헤이비어 정의 */
+    /* 커스텀 비헤이비어 정의 */
     behaviors {
-        // 부트로더 진입 (5초 홀드)
+        // 부트로더/음소거 홀드-탭 (5초 홀드 시 부트로더, 짧게 탭하면 음소거)
         td_boot: tap_dance_bootloader {
             compatible = "zmk,behavior-hold-tap";
             label = "BOOTLOADER_LONG_PRESS";
@@ -15,14 +15,14 @@
             bindings = <&bootloader>, <&kp>;
         };
 
-        // 레이어 순환 (세 번째 인코더 클릭용)
-        // 탭할 때마다 다음 레이어로 전환
-        nav_layer: layer_cycler {
-            compatible = "zmk,behavior-tap-dance";
-            label = "LAYER_CYCLER";
-            #binding-cells = <0>;
+        // 상단 좌측 노브 클릭: 길게 누르면 DEL, 짧게 누르면 ENTER
+        ht_del_ent: hold_tap_del_enter {
+            compatible = "zmk,behavior-hold-tap";
+            label = "DEL_ENTER_HOLD_TAP";
+            #binding-cells = <2>;
             tapping-term-ms = <200>;
-            bindings = <&to 0>, <&to 1>, <&to 2>;
+            flavor = "tap-preferred";
+            bindings = <&kp>, <&kp>;
         };
     };
 
@@ -31,56 +31,78 @@
 
         // 0번: 기본 레이어 (Numpad)
         default_layer {
-            label = "BASE";
+            label = "Numpad";
             bindings = <
-                &kp KP_N9    &kp KP_N8    &kp KP_N7    &kp KP_N0
-                &kp KP_N6    &kp KP_N5    &kp KP_N4    &kp KP_DOT
-                &kp KP_N3    &kp KP_N2    &kp KP_N1    &kp KP_PLUS
+                &kp KP_N7    &kp KP_N8    &kp KP_N9    &kp BSPC
+                &kp KP_N4    &kp KP_N5    &kp KP_N6    &kp KP_DOT
+                &kp KP_N1    &kp KP_N2    &kp KP_N3    &lt 3 KP_N0  // 짧게: 0 입력, 길게: 3번(SYSTEM) 레이어
                 
-                /* 노브 영역: 3번째 노브 클릭 시 레이어 변경 */
-                &td_boot 0 C_MUTE    &kp C_PP    &nav_layer    &none
+                /* 노브 클릭 버튼 영역 
+                   (하단 노브: Mute)     (상단 좌측: DEL/ENTER)         (상단 우측: NEXT LAYER)  (더미 키) */
+                &td_boot 0 C_MUTE    &ht_del_ent DEL ENTER            &to 1                    &none
             >;
 
             sensor-bindings = <
-                &inc_dec_kp C_VOL_DN C_VOL_UP  // 1번: 볼륨
-                &inc_dec_kp PG_UP PG_DN        // 2번: 페이지 업/다운
-                &inc_dec_kp C_FF C_RW          // 3번: 브라이트니스 대신 곡 넘기기로 변경 (추천)
+                &inc_dec_kp C_VOL_DN C_VOL_UP  // 1번 (하단 노브): 볼륨
+                &inc_dec_kp PG_UP PG_DN        // 2번 (상단 좌측 노브): 페이지 스크롤
+                &inc_dec_kp RIGHT LEFT         // 3번 (상단 우측 노브): 좌우 화살표 (이동)
             >;
         };
 
-        // 1번: 로워 레이어 (미디어/기타)
-        lower_layer {
-            label = "LOWER";
+        // 1번: 미디어 레이어 (동영상 시청)
+        video_layer {
+            label = "VIDEO";
             bindings = <
-                &kp ESC      &kp UP       &kp DEL      &kp BSPC
-                &kp LEFT     &kp DOWN     &kp RIGHT    &kp HOME
-                &kp LALT     &kp LCTRL    &kp LSHFT    &kp END
+                &kp ESC      &kp UP       &kp F        &kp BSPC  // UP: 화살표 위, F: 전체화면
+                &kp LEFT     &kp SPACE    &kp RIGHT    &kp HOME  // 정중앙 Space(재생/일시정지)를 둘러싼 십자 방향키 배열
+                &kp M        &kp DOWN     &kp END      &mo 3     // 누르고 있는 동안 3번(SYSTEM) 레이어
                 
-                &none        &none        &nav_layer   &none
+                /* 노브 클릭 버튼 영역 */
+                &td_boot 0 C_MUTE    &ht_del_ent DEL ENTER            &to 2                    &none
             >;
 
             sensor-bindings = <
-                &inc_dec_kp C_VOL_UP C_VOL_DN
-                &inc_dec_kp PG_UP PG_DN
-                &inc_dec_kp C_FF C_RW
+                &inc_dec_kp C_VOL_DN C_VOL_UP  // 1번 (하단 노브): 볼륨
+                &inc_dec_kp PG_UP PG_DN        // 2번 (상단 좌측 노브): 위아래 스크롤
+                &inc_dec_kp RIGHT LEFT         // 3번 (상단 우측 노브): 돌려서 영상 앞뒤 탐색
             >;
         };
 
-        // 2번: 레이즈 레이어 (시스템/설정)
-        raise_layer {
-            label = "RAISE";
+        // 2번: FreeCAD 레이어 (3D 설계)
+        cad_layer {
+            label = "FREECAD";
             bindings = <
-                &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_CLR
-                &none        &none        &none        &none
-                &none        &none        &none        &none
+                &kp ESC      &kp LC(Z)    &kp LC(Y)    &kp DEL   // 실행취소, 다시실행
+                &kp LSHFT    &kp LCTRL    &kp LALT     &kp SPACE // 조작용 모디파이어 키
+                &kp KP_N1    &kp KP_N2    &kp KP_N3    &lt 3 KP_N0 // 짧게: 0 입력, 길게: 3번(SYSTEM) 레이어
                 
-                &none        &none        &nav_layer   &none
+                /* 노브 클릭 버튼 영역 (상단 우측 노브 클릭 시 다시 0번 BASE로 복귀) */
+                &td_boot 0 C_MUTE    &ht_del_ent DEL ENTER            &to 0                    &none
             >;
 
             sensor-bindings = <
-                &inc_dec_kp C_VOL_UP C_VOL_DN
+                &inc_dec_kp C_VOL_DN C_VOL_UP  // 1번 (하단 노브): 볼륨
+                &inc_dec_kp LC(Y) LC(Z)        // 2번 (상단 좌측 노브): 돌려서 실행취소/복구
+                &inc_dec_kp PG_DOWN PG_UP      // 3번 (상단 우측 노브): 돌려서 줌 인/아웃 대용
+            >;
+        };
+
+        // 3번: 시스템 레이어 (설정 및 블루투스)
+        system_layer {
+            label = "SYSTEM";
+            bindings = <
+                &none        &none        &none        &bt BT_CLR // BT_CLR: 우측 상단(BSPC 자리)
+                &none        &none        &none        &none
+                &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &trans     // 숫자 1, 2, 3 자리에 블루투스 기기 매칭
+                
+                /* 노브 클릭 버튼 영역 */
+                &td_boot 0 C_MUTE    &none                            &none                    &none
+            >;
+
+            sensor-bindings = <
+                &inc_dec_kp C_VOL_DN C_VOL_UP
                 &inc_dec_kp PG_UP PG_DN
-                &inc_dec_kp C_FF C_RW
+                &inc_dec_kp RIGHT LEFT
             >;
         };
     };
