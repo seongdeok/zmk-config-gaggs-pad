@@ -60,7 +60,7 @@
         label = "KSCAN";
         status = "okay";
         diode-direction = "col2row";
-        wakeup-source;
+        //wakeup-source;
 
         col-gpios
             = <&gpio1 6  GPIO_ACTIVE_HIGH>
