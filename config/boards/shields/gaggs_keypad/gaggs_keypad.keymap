@@ -77,11 +77,11 @@
             label = "VIDEO";
             bindings = <
                 /* 물리 1 2 3 4 */
-                &kp BSPC     &kp UP       &kp F        &kp ESC
+                &kp BSPC     &kp F        &kp UP       &kp ESC
                 /* 물리 5 6 7 8 */
-                &kp LEFT     &kp SPACE    &kp RIGHT    &kp HOME
+                &kp HOME     &kp LEFT     &kp SPACE    &kp RIGHT        
                 /* 물리 9 10 11 12 */
-                &mo 3        &kp DOWN     &kp END      &kp M     
+                &mo 3        &kp HOME     &kp DOWN     &kp END
                 
                 /* 노브 클릭 버튼 */
                 &td_boot 0 C_MUTE    &ht_del_ent DELETE ENTER         &to 2                    &none
