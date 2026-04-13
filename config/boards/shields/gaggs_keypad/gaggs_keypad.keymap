@@ -110,9 +110,9 @@
             >;
 
             sensor-bindings = <
-                &inc_dec_kp C_VOL_DN C_VOL_UP  
-                &inc_dec_kp LC(Y) LC(Z)        // LCTRL(Y) -> LC(Y)로 수정하여 에러 해결
-                &inc_dec_kp PG_DN PG_UP        // PG_DOWN -> PG_DN으로 수정
+                &inc_dec_kp PG_DN PG_UP  
+                &inc_dec_kp LEFT RIGHT        // LCTRL(Y) -> LC(Y)로 수정하여 에러 해결
+                &inc_dec_kp DN UP        // PG_DOWN -> PG_DN으로 수정
             >;
         };
 
