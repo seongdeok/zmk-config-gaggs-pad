@@ -106,7 +106,7 @@
                 &lt 3 KP_N0  &kp KP_N1    &kp KP_N2    &kp KP_N3 
                 
                 /* 노브 클릭 버튼 */
-                &td_boot 0 C_MUTE    &ht_del_ent DELETE ENTER         &to 0                    &none
+                &kp LGUI    &ht_del_ent ENTER DELETE         &to 0                    &none
             >;
 
             sensor-bindings = <
