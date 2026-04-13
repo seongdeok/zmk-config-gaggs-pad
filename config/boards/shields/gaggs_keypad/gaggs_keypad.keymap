@@ -67,8 +67,8 @@
 
             sensor-bindings = <
                 &inc_dec_kp C_VOL_DN C_VOL_UP  // 하단 노브
-                &inc_dec_kp PG_UP PG_DN        // 상단 좌측 노브
-                &inc_dec_kp RIGHT LEFT         // 상단 우측 노브
+                &inc_dec_kp PG_DN PG_UP        // 상단 좌측 노브
+                &inc_dec_kp LEFT RIGHT         // 상단 우측 노브
             >;
         };
 
@@ -89,8 +89,8 @@
 
             sensor-bindings = <
                 &inc_dec_kp C_VOL_DN C_VOL_UP  
-                &inc_dec_kp PG_UP PG_DN        
-                &inc_dec_kp RIGHT LEFT         
+                &inc_dec_kp PG_DN PG_UP       
+                &inc_dec_kp LEFT RIGHT         
             >;
         };
 
