@@ -4,8 +4,7 @@
 / {
     chosen {
         zmk,kscan = &kscan0;
-        // 1. ZMK Studio를 위한 물리적 레이아웃 연결
-        zmk,physical-layout = &physical_layout0;
+
     };
 
     
